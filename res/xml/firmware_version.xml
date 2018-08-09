@@ -36,6 +36,15 @@
         settings:searchable="false"
         settings:controller="com.android.settings.deviceinfo.firmwareversion.FirmwareVersionDetailPreferenceController"/>
 
+    <!-- AfterLife version -->
+    <Preference
+        android:key="afterlife_version"
+        android:title="@string/afterlife_version"
+        android:summary="@string/summary_placeholder"
+        settings:enableCopying="true"
+        settings:searchable="false"
+        settings:controller="com.android.settings.deviceinfo.firmwareversion.AflVersionDetailPreferenceController"/>
+
     <!-- Security patch -->
     <Preference
         android:key="security_key"
