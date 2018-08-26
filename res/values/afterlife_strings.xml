@@ -19,4 +19,7 @@
      <!-- About device screen, AfterLife -->
     <string name="afterlife_version">AfterLife Version</string>
     
+    <!-- About device screen, Build date -->
+    <string name="build_date">Build date</string>
+
 </resources>
