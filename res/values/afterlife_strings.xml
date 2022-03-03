@@ -31,4 +31,7 @@
     <!-- Hardware info -->
     <string name="platform_revision">Platform</string>
     <string name="total_ram">Total RAM</string>
+
+    <!-- AfterLife Maintainer -->
+    <string name="afterlife_maintainer">Device Maintainer</string>
 </resources>
