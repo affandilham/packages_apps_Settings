@@ -43,6 +43,9 @@ import com.android.settings.activityembedding.ActivityEmbeddingRulesController;
 import com.android.settings.activityembedding.ActivityEmbeddingUtils;
 import com.android.settings.core.SubSettingLauncher;
 import com.android.settings.dashboard.DashboardFragment;
+import com.android.settings.network.InternetPreferenceController;
+import com.android.settings.network.TetherPreferenceController;
+import com.android.settings.network.AirplaneModePreferenceController;
 import com.android.settings.overlay.FeatureFactory;
 import com.android.settings.search.BaseSearchIndexProvider;
 import com.android.settings.support.SupportPreferenceController;
@@ -97,6 +100,14 @@ public class TopLevelSettings extends DashboardFragment implements SplitLayoutLi
     }
 
     @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        HighlightableMenu.fromXml(context, getPreferenceScreenResId());
+        use(AirplaneModePreferenceController.class).setFragment(this);
+        use(SupportPreferenceController.class).setActivity(getActivity());
+    }
+
+    @Override
     public int getHelpResource() {
         // Disable the help icon because this page uses a full search view in actionbar.
         return 0;
@@ -122,6 +133,15 @@ public class TopLevelSettings extends DashboardFragment implements SplitLayoutLi
     }
 
     @Override
+    public RecyclerView onCreateRecyclerView(LayoutInflater layoutInflater, ViewGroup viewGroup, Bundle bundle) {
+        RecyclerView onCreateRecyclerView = super.onCreateRecyclerView(layoutInflater, viewGroup, bundle);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 2);
+        gridLayoutManager.setSpanSizeLookup(new SpanSizeLookup());
+        onCreateRecyclerView.setLayoutManager(gridLayoutManager);
+        return onCreateRecyclerView;
+    }
+
+    @Override
     public boolean onPreferenceStartFragment(PreferenceFragmentCompat caller, Preference pref) {
         new SubSettingLauncher(getActivity())
                 .setDestination(pref.getFragment())
@@ -133,6 +153,16 @@ public class TopLevelSettings extends DashboardFragment implements SplitLayoutLi
                 .setIsSecondLayerPage(true)
                 .launch();
         return true;
+    }
+
+    private class SpanSizeLookup extends GridLayoutManager.SpanSizeLookup {
+        @Override // androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
+        public int getSpanSize(int i) {
+            return (i == 0 || i >= 3) ? 2 : 1;
+        }
+
+        private SpanSizeLookup() {
+        }
     }
 
     @Override
@@ -354,6 +384,83 @@ public class TopLevelSettings extends DashboardFragment implements SplitLayoutLi
                 break;
             }
             job.doForEach(preference);
+        }
+    }
+
+    @Override
+    protected List<AbstractPreferenceController> createPreferenceControllers(Context context) {
+        return buildPreferenceControllers(context, getSettingsLifecycle(), mMetricsFeatureProvider, this /* fragment */);
+    }
+
+    private static List<AbstractPreferenceController> buildPreferenceControllers(Context context,
+            Lifecycle lifecycle, MetricsFeatureProvider metricsFeatureProvider, Fragment fragment) {
+        final InternetPreferenceController internetPreferenceController =
+                new InternetPreferenceController(context, lifecycle);
+
+        final List<AbstractPreferenceController> controllers = new ArrayList<>();
+        controllers.add(new TetherPreferenceController(context, lifecycle));
+        if (internetPreferenceController != null) {
+            controllers.add(internetPreferenceController);
+        }
+        return controllers;
+    }
+    
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode) {
+            case AirplaneModePreferenceController.REQUEST_CODE_EXIT_ECM:
+                use(AirplaneModePreferenceController.class)
+                        .onActivityResult(requestCode, resultCode, data);
+                break;
+        }
+    }
+
+     private void initPreferenceCard(){
+
+        Preference myPhone = getPreferenceScreen().findPreference("top_level_about_device")
+        Preference AfterLab = getPreferenceScreen().findPreference("top_level_afterlab")
+        SwitchPreference switchPref = getPreferenceScreen().findPreference("airplane_mode");
+
+        for (int i = 0; i < getPreferenceScreen().getPreferenceCount(); i++) {
+            Preference pref = getPreferenceScreen().getPreference(i);
+            if (pref.isVisible() && pref.getTitle() != null && 
+                pref.getLayoutResource() != R.layout.afterlife_cardview__top && 
+                pref.getLayoutResource() != R.layout.afterlife_cardview__single && 
+                pref.getLayoutResource() != R.layout.afterlife_cardview__bottom && 
+                pref.getLayoutResource() != R.layout.afterlife_cardview__middle )
+
+        }
+        switchPref.setLayoutResource(R.layout.afterlife_cardview_top_switch);
+        myPhone.setLayoutResource(R.layout.afterlab_cardview_single_left);
+        AfterLab.setLayoutResource(R.layout.afterlab_cardview_single_right)
+    }
+
+    private void initUserInfo() {
+        LayoutPreference layoutPreference = (LayoutPreference) getPreferenceScreen().findPreference("user_info");
+        FragmentActivity activity = getActivity();
+        if ((Settings.System.getIntForUser(activity.getContentResolver(), "disable_usercard", 0, -2) != 0) && layoutPreference != null) {
+            getPreferenceScreen().removePreference(layoutPreference);
+        } else if (layoutPreference != null) {
+            View findViewById = layoutPreference.findViewById(R.id.entity_header);
+            TextView textView = (TextView) layoutPreference.findViewById(R.id.summary);
+            Bundle arguments = getArguments();
+            EntityHeaderController buttonActions = EntityHeaderController.newInstance(activity, this, findViewById).setRecyclerView(getListView(), getSettingsLifecycle()).setButtonActions(0, 0);
+            findViewById.setOnClickListener(new View.OnClickListener() { // from class: com.android.settings.homepage.TopLevelSettings.2
+                @Override // android.view.View.OnClickListener
+                public void onClick(View view) {
+                    Intent intent = new Intent("android.intent.action.MAIN");
+                    intent.setComponent(new ComponentName("com.android.settings", "com.android.settings.Settings$UserSettingsActivity"));
+                    TopLevelSettings.this.startActivity(intent);
+                }
+            });
+            if (arguments.getInt("icon_id", 0) == 0) {
+                UserManager userManager = (UserManager) getActivity().getSystemService("user");
+                UserInfo existingUser = Utils.getExistingUser(userManager, Process.myUserHandle());
+                buttonActions.setLabel(existingUser.name);
+                buttonActions.setIcon(com.android.settingslib.Utils.getUserIcon(getActivity(), userManager, existingUser));
+            }
+            buttonActions.done((Activity) activity, true);
         }
     }
 
