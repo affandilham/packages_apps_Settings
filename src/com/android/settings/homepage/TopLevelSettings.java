@@ -34,6 +34,7 @@ import androidx.fragment.app.Fragment;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceScreen;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.window.embedding.ActivityEmbeddingController;
 
@@ -233,9 +234,22 @@ public class TopLevelSettings extends DashboardFragment implements SplitLayoutLi
             Bundle savedInstanceState) {
         RecyclerView recyclerView = super.onCreateRecyclerView(inflater, parent,
                 savedInstanceState);
-        recyclerView.setPadding(mPaddingHorizontal, 0, mPaddingHorizontal, 0);
+        GridLayoutManager layoutManager = new GridLayoutManager(getActivity(), 2);
+		layoutManager.setSpanSizeLookup(new DeclanSpanSizeOP());
+		recyclerView.setLayoutManager(layoutManager);
         return recyclerView;
     }
+    
+    class DeclanSpanSizeOP extends GridLayoutManager.SpanSizeLookup {
+		@Override
+		public int getSpanSize(int position) {
+		    if (position == 1 || position == 2) {
+				return 1;
+			} else {
+				return 2;
+			}
+		}
+	}
 
     /** Sets the horizontal padding */
     public void setPaddingHorizontal(int padding) {
