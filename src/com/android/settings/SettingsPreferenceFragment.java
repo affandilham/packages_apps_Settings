@@ -137,6 +137,8 @@ public abstract class SettingsPreferenceFragment extends InstrumentedPreferenceF
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
 
+        SearchMenuController.init(this /* host */);
+
         mDevicePolicyManager = getContext().getSystemService(DevicePolicyManager.class);
         if (icicle != null) {
             mPreferenceHighlighted = icicle.getBoolean(SAVE_HIGHLIGHTED_KEY);
