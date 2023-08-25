@@ -133,8 +133,6 @@ public abstract class SettingsPreferenceFragment extends InstrumentedPreferenceF
         super.onAttach(context);
     }
 
-
-
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
