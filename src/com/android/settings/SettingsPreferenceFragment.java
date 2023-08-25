@@ -133,10 +133,13 @@ public abstract class SettingsPreferenceFragment extends InstrumentedPreferenceF
         super.onAttach(context);
     }
 
+
+
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
 
+        //Add Search Action to Base Settings Activity
         SearchMenuController.init(this /* host */);
 
         mDevicePolicyManager = getContext().getSystemService(DevicePolicyManager.class);
