@@ -125,6 +125,13 @@
             android:summary="@string/enhanced_4g_lte_mode_summary"
             settings:keywords="@string/keywords_enhance_4g_lte"
             settings:controller="com.android.settings.network.telephony.Enhanced4gAdvancedCallingPreferenceController"/>
+        
+        <SwitchPreference
+            android:key="smart_5g"
+            android:title="@string/smart_5g_title"
+            android:persistent="false"
+            android:summary="@string/smart_5g_summary"
+            settings:controller="com.android.settings.network.telephony.Smart5gPreferenceController"/>
 
         <SwitchPreference
             android:key="contact_discovery_opt_in"

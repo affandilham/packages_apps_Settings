@@ -240,4 +240,8 @@
     <string name="title_hspt">Portable hotspot</string>
     <string name="title_conectivity">Connectivity</string>
 
+     <!-- Smart 5G -->
+    <string name="smart_5g_title">Smart 5G</string>
+    <string name="smart_5g_summary">Automatically switch between 5G and 4G to reduce battery consumption</string>
+
 </resources>
